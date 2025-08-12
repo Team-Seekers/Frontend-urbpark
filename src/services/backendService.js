@@ -1,7 +1,7 @@
 // Backend service for Razorpay integration
 // This is a mock implementation - replace with actual backend API calls
 
-const API_BASE_URL = "http://localhost:3000"; // Replace with your actual backend URL
+const API_BASE_URL = "https://backend-urbpark-1.onrender.com"; // Replace with your actual backend URL
 
 // Create order - actual API call
 export const createOrder = async (amount, currency = "INR") => {
