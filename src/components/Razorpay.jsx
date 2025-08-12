@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { calculateTotalPrice } from "../pages/BookingPage";
 
 // Assume your backend server is running on localhost:3000
-const API_BASE_URL = "https://backend-urbpark-1.onrender.com/";
+const API_BASE_URL = "https://backend-urbpark-1.onrender.com";
 
 // A mock API service to handle communication with your Node.js backend.
 // In a real app, this might be a separate file, e.g., 'services/api.js'.
