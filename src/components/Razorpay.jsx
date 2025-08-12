@@ -11,7 +11,7 @@ const API_BASE_URL = "https://backend-urbpark-1.onrender.com";
 const api = {
   createOrder: async (amount) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/create-order`, {
+      const response = await fetch(`${API_BASE_URL}/api/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount }),
@@ -31,7 +31,7 @@ const api = {
       // Note: Your backend's `/verify` endpoint requires `authmiddleware`.
       // You would need to include an authentication token (e.g., JWT) here.
       // For this example, we'll omit it for simplicity.
-      const response = await fetch(`${API_BASE_URL}/verify`, {
+      const response = await fetch(`${API_BASE_URL}/api/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paymentDetails),
