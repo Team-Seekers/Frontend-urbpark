@@ -337,4 +337,3 @@ export default function AuthModal({ open, onClose, onSuccess, user }) {
 }
 
 
-change this in AuthModel.jsx
