@@ -161,7 +161,7 @@ const SpotSelectionGrid = ({
       {/* Availability Summary */}
       <div className="bg-gray-100 px-4 py-2 text-center text-sm text-gray-600 border-x-2 border-gray-200">
         <span className="font-medium">
-          {getAvailableCount()} of {getTotalCount()} spots available
+          {spots.length} of {getTotalCount()} spots available
         </span>
         {getBookedCount() > 0 && !isLoading && (
           <span className="ml-2 text-red-600">
