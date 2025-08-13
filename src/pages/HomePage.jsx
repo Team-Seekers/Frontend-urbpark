@@ -52,7 +52,7 @@ const HomePage = ({ user, onProtectedNav }) => {
               <div className="flex items-center bg-gray-900 p-2 rounded-lg shadow-lg max-w-xl mx-auto md:mx-0">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-gray-300 mx-3 flex-shrink-0"
+                  className="h-6 w-6 text-gray-300 mx-3 flex-shrink-0 hidden sm:block"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -64,23 +64,24 @@ const HomePage = ({ user, onProtectedNav }) => {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Enter an address, landmark, or area..."
-                  className="w-full p-2 border-none focus:ring-0 text-lg bg-transparent text-white placeholder-gray-400"
-                  aria-label="Search for parking"
-                />
-                <button
-                  onClick={() => {handleNavClick("/find");
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Enter an address, landmark, or area..."
+                    className="w-full p-2 border-none focus:ring-0 text-lg bg-transparent text-white placeholder-gray-400"
+                    aria-label="Search for parking"
+                  />
 
-                  }}
-                  className="bg-yellow-400 whitespace-nowrap hover:bg-yellow-300 text-gray-900 font-bold py-3 px-6 rounded-md text-lg transition-transform transform hover:scale-105 shadow-sm"
-                >
-                  Find Parking Now
-                </button>
-              </div>
+                  <button
+                    onClick={() => handleNavClick("/find")}
+                    className="bg-yellow-400 whitespace-nowrap hover:bg-yellow-300 text-gray-900 font-bold py-3 px-6 rounded-md text-lg transition-transform transform hover:scale-105 shadow-sm"
+                  >
+                    <div>Find Parking Now</div>
+                  </button>
+                </div>
+              </div>{" "}
             </form>
           </div>
           <div className="hidden md:block flex justify-center items-center border-4 border-yellow-400 rounded-lg overflow-hidden">
