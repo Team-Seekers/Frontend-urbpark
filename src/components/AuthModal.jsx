@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -8,21 +8,10 @@ import {
 import { doc, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
 
-// IMPORTANT: This component assumes you have a Firebase.js file
-// that exports auth and db like this:
-// import { getAuth } from "firebase/auth";
-// import { getFirestore } from "firebase/firestore";
-// import { initializeApp } from "firebase/app";
-//
-// const firebaseConfig = { ... }; // Your Firebase config
-// const app = initializeApp(firebaseConfig);
-// export const auth = getAuth(app);
-// export const db = getFirestore(app);
-//
-// Make sure you have this setup in your project.
+
 import { auth, db } from "../services/Firebase";
 
-export default function AuthModal({ open, onClose, onSuccess }) {
+export default function AuthModal({ open, onClose, onSuccess, user }) {
   const [tab, setTab] = useState("login");
   const [loading, setLoading] = useState(false);
   const [showReset, setShowReset] = useState(false);
@@ -36,6 +25,14 @@ export default function AuthModal({ open, onClose, onSuccess }) {
     confirmpassword: "",
     vehicle: "",
   });
+
+  // Check if user is already logged in when modal opens
+  useEffect(() => {
+    if (open && user) {
+      toast.info("You are already registered and logged in!");
+      onClose();
+    }
+  }, [open, user, onClose]);
 
   const handleLoginChange = (e) =>
     setLogin({ ...login, [e.target.name]: e.target.value });
@@ -95,8 +92,15 @@ export default function AuthModal({ open, onClose, onSuccess }) {
       toast.success("Signup successful! You are now logged in.");
       onSuccess?.();
       onClose();
+      
     } catch (err) {
-      toast.error(err.message);
+      if (err.code === 'auth/email-already-in-use') {
+        toast.error("Email already registered. Please login.");
+        setTab("login");
+        setLogin({ email: signup.email, password: "" });
+      } else {
+        toast.error(err.message);
+      }
     }
     setLoading(false);
   };
@@ -121,6 +125,40 @@ export default function AuthModal({ open, onClose, onSuccess }) {
   };
 
   if (!open) return null;
+
+  // If user is already logged in, show message instead of modal
+  if (user) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
+        <div className="bg-white rounded-xl shadow-2xl p-8 relative w-full max-w-md text-center">
+          <button
+            className="absolute top-2 right-2 text-gray-400 text-2xl hover:text-gray-700"
+            onClick={onClose}
+          >
+            &times;
+          </button>
+          
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Already Registered!</h3>
+            <p className="text-gray-600">You are already logged in as:</p>
+            <p className="text-sm font-medium text-yellow-600 mt-1">{user.email}</p>
+          </div>
+          
+          <button
+            onClick={onClose}
+            className="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 rounded-lg transition-colors duration-200"
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
@@ -297,3 +335,6 @@ export default function AuthModal({ open, onClose, onSuccess }) {
     </div>
   );
 }
+
+
+change this in AuthModel.jsx
