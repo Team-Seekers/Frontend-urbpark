@@ -243,7 +243,7 @@ const TicketPage = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367 2.684z"
+                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
                 />
               </svg>
               Share
@@ -252,7 +252,21 @@ const TicketPage = () => {
         </div>
       )}
 
-      {booking.status !== BookingStatus.CONFIRMED &&
+      {booking.status === BookingStatus.ACTIVE && (
+        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="text-center">
+            <p className="text-green-800 font-semibold">
+              Enjoy Automated Parking Monitoring
+            </p>
+            <p className="text-sm text-green-600 mt-1">
+              Your parking session is being monitored automatically. Relax and enjoy your time!
+            </p>
+          </div>
+        </div>
+      )}
+
+      {booking.status !== BookingStatus.CONFIRMED && 
+        booking.status !== BookingStatus.ACTIVE &&
         booking.status !== BookingStatus.CANCELLED && (
           <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="text-center">
