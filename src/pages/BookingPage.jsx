@@ -18,15 +18,6 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 
-// Calculate total price for selected time period
-export const calculateTotalPrice = (lot, startTime, endTime) => {
-  console.log(`${lot?.pricePerHour}, ${startTime}, ${endTime} testing`);
-  
-  const hoursDiff = (endTime - startTime) / (1000 * 60 * 60);
-  const totalPrice = (lot?.pricePerHour || 0) * hoursDiff;
-  return totalPrice.toFixed(2);
-};
-
 const BookingPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -208,7 +199,7 @@ const BookingPage = () => {
   const isBookingValid = () => {
     return (
       selectedSpotId &&
-      vehicleNumber.trim() &&
+      /^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/.test(vehicleNumber) &&
       startTime < endTime &&
       slotStatusMap[selectedSpotId] === "available" &&
       !isBooking &&
@@ -562,11 +553,17 @@ const BookingPage = () => {
                 id="vehicleNumber"
                 value={vehicleNumber}
                 onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                placeholder="E.G., ABC-1234"
-                maxLength={15}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+                           focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                placeholder="E.g., MH12AB1234"
+                maxLength={10}
                 required
               />
+              {vehicleNumber && !/^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/.test(vehicleNumber) && (
+                <p className="text-red-500 text-sm mt-2">
+                  Vehicle number must be in format: MH12AB1234
+                </p>
+              )}
             </div>
           </div>
 
@@ -635,6 +632,15 @@ const BookingPage = () => {
       </div>
     </div>
   );
+};
+
+// Export the calculate function for external use
+export const calculateTotalPrice = (lot, startTime, endTime) => {
+  console.log(`${lot?.pricePerHour}, ${startTime}, ${endTime} testing`);
+  
+  const hoursDiff = (endTime - startTime) / (1000 * 60 * 60);
+  const totalPrice = (lot?.pricePerHour || 0) * hoursDiff;
+  return totalPrice.toFixed(2);
 };
 
 export default BookingPage;

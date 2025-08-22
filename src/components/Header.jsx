@@ -8,6 +8,8 @@ import { toast } from "react-toastify";
 const Header = ({ user, isAdmin, onLoginClick, onProtectedNav }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -28,7 +30,33 @@ const Header = ({ user, isAdmin, onLoginClick, onProtectedNav }) => {
       navigate(path);
     }
     // Close mobile menu when navigating
+    closeMobileMenu();
+  };
+
+  const openMobileMenu = () => {
+    setShowMenu(true);
+    // Small delay to ensure DOM is updated before animation
+    setTimeout(() => {
+      setIsMobileMenuOpen(true);
+      setIsAnimating(true);
+    }, 100);
+  };
+
+  const closeMobileMenu = () => {
+    setIsAnimating(false);
     setIsMobileMenuOpen(false);
+    // Wait for animation to complete before hiding the menu
+    setTimeout(() => {
+      setShowMenu(false);
+    }, 350); // Match this with CSS transition duration
+  };
+
+  const toggleMobileMenu = () => {
+    if (isMobileMenuOpen || showMenu) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
   };
 
   useEffect(() => {
@@ -41,6 +69,20 @@ const Header = ({ user, isAdmin, onLoginClick, onProtectedNav }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (showMenu) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMenu]);
+
   return (
     <header className="bg-yellow-400 shadow-md py-5 px-6 sticky top-0 z-50 relative">
       <div className="p-4 flex items-center justify-between">
@@ -48,11 +90,11 @@ const Header = ({ user, isAdmin, onLoginClick, onProtectedNav }) => {
         <div className="flex items-center space-x-4">
           {/* Mobile Menu Button - Left side */}
           <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden text-gray-900 hover:text-white focus:outline-none focus:text-white"
+            onClick={toggleMobileMenu}
+            className="md:hidden text-gray-900 hover:text-white focus:outline-none focus:text-white transition-all duration-300 hover:scale-110 hover:rotate-3"
             aria-label="Toggle mobile menu"
           >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-6 w-6 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -72,20 +114,20 @@ const Header = ({ user, isAdmin, onLoginClick, onProtectedNav }) => {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-10 text-lg ml-8">
-            <NavLink to="/" className="hover:text-white font-medium text-gray-800">
+            <NavLink to="/" className="hover:text-white font-medium text-gray-800 transition-all duration-200 hover:scale-105">
               Home
             </NavLink>
             <button
               onClick={() => handleNavClick("/find")}
-              className="hover:text-white font-medium text-gray-800"
+              className="hover:text-white font-medium text-gray-800 transition-all duration-200 hover:scale-105"
             >
               Find Parking
             </button>
             <button
               onClick={() => handleNavClick(isAdmin ? "/admin" : "/profile")}
-              className="hover:text-white font-medium text-gray-800"
+              className="hover:text-white font-medium text-gray-800 transition-all duration-200 hover:scale-105"
             >
-              {isAdmin ? "Admin Dashboard" : "My Bookings"}
+              {/* {isAdmin ? "Admin Dashboard" : */} My Bookings{/* } */}
             </button>
           </nav>
         </div>
@@ -146,61 +188,103 @@ const Header = ({ user, isAdmin, onLoginClick, onProtectedNav }) => {
       </div>
 
       {/* Mobile Navigation Sidebar */}
-      {isMobileMenuOpen && (
+      {showMenu && (
         <>
-          {/* Overlay */}
+          {/* Overlay with fade animation */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
+            className={`fixed inset-0 bg-black z-40 md:hidden transition-all duration-350 ease-out ${
+              isMobileMenuOpen ? 'bg-opacity-50 backdrop-blur-sm' : 'bg-opacity-0'
+            }`}
+            onClick={closeMobileMenu}
           ></div>
           
-          {/* Sidebar */}
-          <div className="fixed top-0 left-0 h-full w-64 bg-yellow-400 shadow-lg z-50 md:hidden transform transition-transform duration-300">
-            <div className="p-6">
-              {/* Close button */}
+          {/* Sidebar with slide animation */}
+          <div className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-b from-yellow-400 to-yellow-500 shadow-2xl z-50 md:hidden transition-all duration-350 ease-out ${
+            isMobileMenuOpen ? 'transform translate-x-0' : 'transform -translate-x-full'
+          }`}>
+            <div className="p-6 h-full flex flex-col">
+              {/* Close button with enhanced hover */}
               <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="absolute top-4 right-4 text-gray-900 hover:text-white"
+                onClick={closeMobileMenu}
+                className="absolute top-4 right-4 text-gray-900 hover:text-white transition-all duration-200 hover:scale-110 hover:rotate-90 p-2 rounded-full hover:bg-yellow-300"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
               
-              {/* Logo */}
-              <div className="mb-8 mt-4">
+              {/* Logo with animation */}
+              <div className="mb-12 mt-4">
                 <NavLink
                   to="/"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-2xl font-extrabold text-gray-900 flex items-center"
+                  onClick={closeMobileMenu}
+                  className={`text-3xl font-extrabold text-gray-900 flex items-center hover:scale-105 transition-all duration-300 ${
+                    isAnimating 
+                      ? 'opacity-100 transform translate-y-0 transition-delay-100' 
+                      : 'opacity-0 transform translate-y-4'
+                  }`}
                 >
                   <span>Urb</span>
                   <span className="text-white">Park</span>
                 </NavLink>
               </div>
               
-              {/* Navigation */}
-              <nav className="space-y-4">
+              {/* Navigation with enhanced hover effects and staggered animation */}
+              <nav className="space-y-3 flex-1">
                 <NavLink
                   to="/"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-gray-800 hover:text-white font-medium text-lg py-3 px-2 rounded hover:bg-yellow-300 transition-colors"
+                  onClick={closeMobileMenu}
+                  className={`group block text-gray-800 hover:text-white font-medium text-xl py-4 px-4 rounded-xl hover:bg-yellow-300 hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:translate-x-2 ${
+                    isAnimating 
+                      ? 'opacity-100 transform translate-x-0 transition-delay-200' 
+                      : 'opacity-0 transform translate-x-8'
+                  }`}
                 >
-                  Home
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl group-hover:animate-bounce"></span>
+                    <span>Home</span>
+                  </div>
                 </NavLink>
+                
                 <button
                   onClick={() => handleNavClick("/find")}
-                  className="block w-full text-left text-gray-800 hover:text-white font-medium text-lg py-3 px-2 rounded hover:bg-yellow-300 transition-colors"
+                  className={`group block w-full text-left text-gray-800 hover:text-white font-medium text-xl py-4 px-4 rounded-xl hover:bg-yellow-300 hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:translate-x-2 ${
+                    isAnimating 
+                      ? 'opacity-100 transform translate-x-0 transition-delay-300' 
+                      : 'opacity-0 transform translate-x-8'
+                  }`}
                 >
-                  Find Parking
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl group-hover:animate-bounce"></span>
+                    <span>Find Parking</span>
+                  </div>
                 </button>
+                
                 <button
                   onClick={() => handleNavClick(isAdmin ? "/admin" : "/profile")}
-                  className="block w-full text-left text-gray-800 hover:text-white font-medium text-lg py-3 px-2 rounded hover:bg-yellow-300 transition-colors"
+                  className={`group block w-full text-left text-gray-800 hover:text-white font-medium text-xl py-4 px-4 rounded-xl hover:bg-yellow-300 hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:translate-x-2 ${
+                    isAnimating 
+                      ? 'opacity-100 transform translate-x-0 transition-delay-400' 
+                      : 'opacity-0 transform translate-x-8'
+                  }`}
                 >
-                  My Bookings
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl group-hover:animate-bounce"></span>
+                    <span>My Bookings</span>
+                  </div>
                 </button>
               </nav>
+              
+              {/* Footer with animation */}
+              <div className={`mt-8 pt-6 border-t border-yellow-300 transition-all duration-300 ${
+                isAnimating 
+                  ? 'opacity-100 transform translate-y-0 transition-delay-500' 
+                  : 'opacity-0 transform translate-y-4'
+              }`}>
+                <p className="text-gray-700 text-sm text-center">
+                  Welcome to UrbPark! 
+                </p>
+              </div>
             </div>
           </div>
         </>

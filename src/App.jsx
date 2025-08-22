@@ -11,6 +11,11 @@ import ProfilePage from "./pages/ProfilePage";
 import NotFoundPage from "./pages/NotFoundPage";
 import Chatbot from "./components/Chatbot";
 import PaymentPage from "./pages/PaymentPage";
+// Import new components
+import Contact from "./components/ContactUs";
+import About from "./components/AboutUs";
+import FAQ from "./components/Faq";
+import Terms from "./components/Terms";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AuthModal from "./components/AuthModal";
@@ -66,7 +71,13 @@ const App = () => {
                 }
               />
             
-              {/* All other routes are protected */}
+              {/* Public routes - accessible without login */}
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/terms" element={<Terms />} />
+
+              {/* Protected routes - require login */}
               <Route
                 path="/find"
                 element={

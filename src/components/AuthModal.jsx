@@ -57,53 +57,59 @@ export default function AuthModal({ open, onClose, onSuccess, user }) {
     }
     setLoading(false);
   };
+const handleSignup = async (e) => {
+  e.preventDefault();
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-  
-    if (signup.password !== signup.confirmpassword) {
-      toast.error("Passwords do not match");
-      return;
+  if (signup.password !== signup.confirmpassword) {
+    toast.error("Passwords do not match");
+    return;
+  }
+
+  if (
+    !/^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/.test(signup.vehicle)
+  ) {
+    toast.error("Invalid vehicle number format (e.g. MH12AB1234)");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      signup.email,
+      signup.password
+    );
+    const uid = userCredential.user.uid;
+
+    // Extract name from email
+    const nameFromEmail = signup.email.split("@")[0];
+
+    await setDoc(doc(db, "users", uid), {
+      createdAt: new Date(),
+      email: signup.email,
+      username: nameFromEmail,
+      phone: signup.phoneno,
+      role: "user",
+      history: [], 
+      notifications: [], 
+      vehicles: signup.vehicle ? [signup.vehicle] : [],
+    });
+
+    toast.success("Signup successful! You are now logged in.");
+    onSuccess?.();
+    onClose();
+  } catch (err) {
+    if (err.code === "auth/email-already-in-use") {
+      toast.error("Email already registered. Please login.");
+      setTab("login");
+      setLogin({ email: signup.email, password: "" });
+    } else {
+      toast.error(err.message);
     }
-  
-    setLoading(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        signup.email,
-        signup.password
-      );
-      const uid = userCredential.user.uid;
-  
-      // Extract name from email
-      const nameFromEmail = signup.email.split("@")[0];
-  
-      await setDoc(doc(db, "users", uid), {
-        createdAt: new Date(),
-        email: signup.email,
-        username: nameFromEmail,
-        phone: signup.phoneno,
-        role: "user",
-        history: [], // initialized empty
-        notifications: [], // initialized empty notifications array
-        vehicles: signup.vehicle ? [signup.vehicle] : [],
-      });
-  
-      toast.success("Signup successful! You are now logged in.");
-      onSuccess?.();
-      onClose();
-      
-    } catch (err) {
-      if (err.code === 'auth/email-already-in-use') {
-        toast.error("Email already registered. Please login.");
-        setTab("login");
-        setLogin({ email: signup.email, password: "" });
-      } else {
-        toast.error(err.message);
-      }
-    }
-    setLoading(false);
-  };
+  }
+  setLoading(false);
+};
+
    
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -296,14 +302,24 @@ export default function AuthModal({ open, onClose, onSuccess, user }) {
               required
             />
             <input
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 outline-none transition-colors"
-              type="text"
-              name="vehicle"
-              placeholder="Vehicle Number"
-              value={signup.vehicle}
-              onChange={handleSignupChange}
-              required
-            />
+  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 outline-none transition-colors"
+  type="text"
+  name="vehicle"
+  placeholder="Vehicle Number (e.g. MH12AB1234)"
+  value={signup.vehicle}
+  onChange={(e) =>
+    setSignup({ ...signup, vehicle: e.target.value.toUpperCase() })
+  }
+  maxLength={10}
+  required
+/>
+{signup.vehicle &&
+  !/^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$/.test(signup.vehicle) && (
+    <p className="text-red-500 text-sm mt-2">
+      Vehicle number must be in format: MH12AB1234
+    </p>
+)}
+
             <input
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 outline-none transition-colors"
               type="password"
@@ -335,5 +351,3 @@ export default function AuthModal({ open, onClose, onSuccess, user }) {
     </div>
   );
 }
-
-
